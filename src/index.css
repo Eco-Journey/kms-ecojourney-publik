@@ -1,0 +1,56 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-neutralBg text-neutral-800 font-sans antialiased;
+    font-size: 16px; /* 16px default */
+  }
+}
+
+/* Custom styling helper classes if needed */
+.text-h1 {
+  font-size: 36px;
+  font-weight: 800; /* ExtraBold */
+  line-height: 1.2;
+}
+
+.text-h2 {
+  font-size: 20px;
+  font-weight: 800; /* ExtraBold */
+  line-height: 1.3;
+}
+
+.text-body {
+  font-size: 20px;
+  font-weight: 400; /* Regular */
+  line-height: 1.5;
+}
+
+.text-caption {
+  font-size: 16px;
+  font-weight: 400; /* Regular */
+  line-height: 1.4;
+}
+
+/* Scrollbar customization */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #284027;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #3d5e3c;
+}
