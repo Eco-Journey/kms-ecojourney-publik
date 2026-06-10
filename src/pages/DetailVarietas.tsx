@@ -1,17 +1,38 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight, Calendar as CalendarIcon, ArrowLeft } from 'lucide-react';
-import { VARITIES_DATA } from '../data/mockData';
+import { getVarietyById } from '../services/dataService';
+import { Variety } from '../types';
 
-export default function DetailVarietas({ varietyId, onBack }) {
-  // Find current variety data
-  const variety = VARITIES_DATA.find((v) => v.id === varietyId) || VARITIES_DATA[0];
+interface DetailVarietasProps {
+  varietyId: string;
+  onBack: () => void;
+  setCurrentRoute?: (route: string) => void;
+}
+
+export default function DetailVarietas({ varietyId, onBack, setCurrentRoute }: DetailVarietasProps) {
+  const [variety, setVariety] = useState<Variety | null>(null);
+  const [loading, setLoading] = useState(true);
 
   // Tabs state: 'galeri' | 'kalender' | 'praktik'
   const [activeTab, setActiveTab] = useState('kalender'); // Default to kalender as in image 1
 
   // Calendar state
-  const [calendarYear, setCalendarYear] = useState(2025);
-  const [calendarMonth, setCalendarMonth] = useState('January');
+  const [calendarYear] = useState(2025);
+  const [calendarMonth] = useState('January');
+
+  useEffect(() => {
+    async function loadVariety() {
+      try {
+        const data = await getVarietyById(varietyId);
+        setVariety(data);
+      } catch (err) {
+        console.error("Error loading variety detail:", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadVariety();
+  }, [varietyId]);
 
   const tabs = [
     { id: 'galeri', label: 'Galeri' },
@@ -21,10 +42,10 @@ export default function DetailVarietas({ varietyId, onBack }) {
 
   // Helper to render calendar days
   const renderCalendarDays = () => {
+    if (!variety) return null;
+    
     // Generate dates for January 2025 specifically to match the wireframe
     // Mon to Sun layout
-    // Mon 29 (Dec), Tue 30 (Dec), Wed 31 (Dec), Thu 1, Fri 2, Sat 3, Sun 4
-    // Mon 5, Tue 6 ...
     const days = [
       { date: 29, currentMonth: false },
       { date: 30, currentMonth: false },
@@ -100,6 +121,34 @@ export default function DetailVarietas({ varietyId, onBack }) {
     });
   };
 
+  const handleVillageClick = () => {
+    if (variety && setCurrentRoute) {
+      // Find village id by name
+      const villageId = variety.village.toLowerCase().replace(/\s+/g, '-');
+      setCurrentRoute(`detail-desa-${villageId}`);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 space-y-8 animate-pulse">
+        <div className="h-10 w-32 bg-neutral-200 rounded"></div>
+        <div className="h-96 bg-neutral-200 rounded-xl"></div>
+      </div>
+    );
+  }
+
+  if (!variety) {
+    return (
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center space-y-4">
+        <h2 className="text-2xl font-bold text-primary">Varietas tidak ditemukan</h2>
+        <button onClick={onBack} className="bg-primary text-white px-6 py-2.5 rounded font-bold">
+          Kembali ke Katalog
+        </button>
+      </div>
+    );
+  }
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
       
@@ -138,7 +187,12 @@ export default function DetailVarietas({ varietyId, onBack }) {
               </div>
               <div>
                 <span className="text-xs font-bold uppercase tracking-wider text-neutral-500 block">Desa</span>
-                <span className="text-base font-semibold text-neutral-800">{variety.village}</span>
+                <button 
+                  onClick={handleVillageClick}
+                  className="text-base font-semibold text-neutral-800 hover:text-primary hover:underline transition-all text-left"
+                >
+                  {variety.village}
+                </button>
               </div>
               <div>
                 <span className="text-xs font-bold uppercase tracking-wider text-neutral-500 block">Komoditas</span>
@@ -263,10 +317,10 @@ export default function DetailVarietas({ varietyId, onBack }) {
           {/* PRAKTIK LOKAL TAB PANEL */}
           {activeTab === 'praktik' && (
             <div className="space-y-6 animate-fadeIn">
-              {variety.practices.map((practice, index) => (
+              {variety.practices.map((practice) => (
                 <div 
                   key={practice.id}
-                  className="bg-secondary-light/10 border border-secondary/20 hover:border-secondary/40 rounded-xl p-6 flex flex-col md:flex-row gap-6 transition-all duration-200 shadow-sm"
+                  className="bg-secondary/10 border border-secondary/20 hover:border-secondary/40 rounded-xl p-6 flex flex-col md:flex-row gap-6 transition-all duration-200 shadow-sm"
                 >
                   <img 
                     src={practice.image} 

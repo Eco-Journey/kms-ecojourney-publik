@@ -1,17 +1,40 @@
 import React, { useState, useEffect } from 'react';
 import { Search, X, SlidersHorizontal } from 'lucide-react';
-import { VARITIES_DATA } from '../data/mockData';
+import { getVarieties } from '../services/dataService';
+import { Variety } from '../types';
 
-export default function Varietas({ onSelectVariety, searchQueryFromNav }) {
+interface VarietasProps {
+  onSelectVariety: (id: string) => void;
+  searchQueryFromNav: string;
+}
+
+export default function Varietas({ onSelectVariety, searchQueryFromNav }: VarietasProps) {
+  const [varieties, setVarieties] = useState<Variety[]>([]);
+  const [loading, setLoading] = useState(true);
+  
   // Filters State
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedKeywords, setSelectedKeywords] = useState(['Umbi', 'Sayur']); // Default tags as in wireframe
+  const [selectedKeywords, setSelectedKeywords] = useState<string[]>(['Umbi', 'Sayur']); // Default tags as in wireframe
   const [selectedCommodity, setSelectedCommodity] = useState('');
   const [selectedStatus, setSelectedStatus] = useState('');
   const [selectedVillage, setSelectedVillage] = useState('');
   const [selectedLandType, setSelectedLandType] = useState('');
   
   const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
+
+  useEffect(() => {
+    async function loadVarieties() {
+      try {
+        const data = await getVarieties();
+        setVarieties(data);
+      } catch (err) {
+        console.error("Failed to load varieties in catalog:", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadVarieties();
+  }, []);
 
   // Sync search query from global navbar search
   useEffect(() => {
@@ -21,12 +44,12 @@ export default function Varietas({ onSelectVariety, searchQueryFromNav }) {
   }, [searchQueryFromNav]);
 
   // Remove tag keyword helper
-  const handleRemoveKeyword = (keywordToRemove) => {
+  const handleRemoveKeyword = (keywordToRemove: string) => {
     setSelectedKeywords(selectedKeywords.filter(k => k !== keywordToRemove));
   };
 
   // Filter Logic
-  const filteredVarieties = VARITIES_DATA.filter((variety) => {
+  const filteredVarieties = varieties.filter((variety) => {
     // Search filter
     const matchesSearch = 
       variety.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -49,9 +72,9 @@ export default function Varietas({ onSelectVariety, searchQueryFromNav }) {
   });
 
   // Extract unique filter options for dropdowns
-  const commodities = [...new Set(VARITIES_DATA.map(v => v.commodity))];
-  const statuses = [...new Set(VARITIES_DATA.map(v => v.conservationStatus))];
-  const villages = [...new Set(VARITIES_DATA.map(v => v.village))];
+  const commodities = [...new Set(varieties.map(v => v.commodity))];
+  const statuses = [...new Set(varieties.map(v => v.conservationStatus))];
+  const villages = [...new Set(varieties.map(v => v.village))];
   const landTypes = ["Tanah", "Sawah", "Pekarangan", "Kebun"];
 
   const handleResetFilters = () => {
@@ -62,6 +85,21 @@ export default function Varietas({ onSelectVariety, searchQueryFromNav }) {
     setSelectedVillage('');
     setSelectedLandType('');
   };
+
+  if (loading) {
+    return (
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 text-center animate-pulse">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+          <div className="h-[400px] bg-neutral-200 rounded-xl"></div>
+          <div className="md:col-span-3 grid grid-cols-1 sm:grid-cols-3 gap-6">
+            {[1, 2, 3, 4, 5, 6].map(n => (
+              <div key={n} className="h-64 bg-neutral-200 rounded-lg"></div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -226,7 +264,7 @@ export default function Varietas({ onSelectVariety, searchQueryFromNav }) {
               <div
                 key={variety.id}
                 onClick={() => onSelectVariety(variety.id)}
-                className="bg-accent-light border border-accent/40 rounded-xl p-4 flex flex-col justify-between hover:shadow-md transition-all duration-300 cursor-pointer transform hover:-translate-y-1"
+                className="bg-accent-light/40 border border-accent/40 rounded-xl p-4 flex flex-col justify-between hover:shadow-md transition-all duration-300 cursor-pointer transform hover:-translate-y-1"
               >
                 <div>
                   <div className="aspect-square w-full rounded-lg overflow-hidden bg-neutral-200 mb-4 border border-accent/20">
@@ -244,7 +282,7 @@ export default function Varietas({ onSelectVariety, searchQueryFromNav }) {
                       Desa: <span className="font-semibold">{variety.village}</span>
                     </p>
                     <p className="text-xs text-neutral-600">
-                      Komoditas: <span className="font-semibold text-secondary-light">{variety.commodity}</span>
+                      Komoditas: <span className="font-semibold text-secondary">{variety.commodity}</span>
                     </p>
                   </div>
                 </div>
@@ -263,7 +301,7 @@ export default function Varietas({ onSelectVariety, searchQueryFromNav }) {
             {filteredVarieties.length === 0 && (
               <div className="col-span-full py-16 text-center text-neutral-500 space-y-3 bg-neutral-50 rounded-xl border border-dashed">
                 <p className="text-lg font-bold">Varietas tidak ditemukan</p>
-                <p className="text-sm font-light">Coba sesuaikan kata kunci pencarian atau bersihkan filter filter di panel kiri.</p>
+                <p className="text-sm font-light">Coba sesuaikan kata kunci pencarian atau bersihkan filter di panel kiri.</p>
                 <button
                   onClick={handleResetFilters}
                   className="bg-primary hover:bg-primary-light text-white font-bold text-xs px-4 py-2 rounded shadow-sm"

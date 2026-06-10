@@ -1,11 +1,17 @@
 import React, { useState } from 'react';
 import { Search, Menu, X } from 'lucide-react';
 
-export default function Navbar({ currentRoute, setCurrentRoute, onSearch }) {
+interface NavbarProps {
+  currentRoute: string;
+  setCurrentRoute: (route: string) => void;
+  onSearch: (query: string) => void;
+}
+
+export default function Navbar({ currentRoute, setCurrentRoute, onSearch }: NavbarProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
 
-  const handleSearchSubmit = (e) => {
+  const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (onSearch) {
       onSearch(searchQuery);
@@ -19,7 +25,7 @@ export default function Navbar({ currentRoute, setCurrentRoute, onSearch }) {
     { id: 'pengetahuan', label: 'Pengetahuan' },
   ];
 
-  const handleNavClick = (routeId) => {
+  const handleNavClick = (routeId: string) => {
     setCurrentRoute(routeId);
     setMobileMenuOpen(false);
   };
@@ -42,7 +48,10 @@ export default function Navbar({ currentRoute, setCurrentRoute, onSearch }) {
                 key={item.id}
                 onClick={() => handleNavClick(item.id)}
                 className={`text-[16px] lg:text-[18px] font-medium transition-colors duration-200 py-2 hover:text-accent-light border-b-2 ${
-                  currentRoute === item.id || (item.id === 'varietas' && currentRoute.startsWith('detail-'))
+                  currentRoute === item.id || 
+                  (item.id === 'varietas' && currentRoute.startsWith('detail-varietas-')) ||
+                  (item.id === 'pengetahuan' && currentRoute.startsWith('detail-pengetahuan-')) ||
+                  (item.id === 'peta' && currentRoute.startsWith('detail-desa-'))
                     ? 'border-accent text-accent'
                     : 'border-transparent text-white/80 hover:text-white'
                 }`}

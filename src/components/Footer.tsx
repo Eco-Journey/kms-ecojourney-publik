@@ -1,7 +1,11 @@
 import React from 'react';
 import { Twitter, Instagram, Youtube, Linkedin } from 'lucide-react';
 
-export default function Footer({ setCurrentRoute }) {
+interface FooterProps {
+  setCurrentRoute: (route: string) => void;
+}
+
+export default function Footer({ setCurrentRoute }: FooterProps) {
   const socialLinks = [
     { icon: <Twitter size={20} />, href: "#", label: "Twitter" },
     { icon: <Instagram size={20} />, href: "#", label: "Instagram" },
@@ -102,7 +106,7 @@ export default function Footer({ setCurrentRoute }) {
               </div>
               <div>
                 <span className="font-bold text-white block">Institusi:</span>
-                <span>Pustaka Kajian Pengetahuan Lokal dan Keanekaragaman Hayati</span>
+                <span>Pusat Kajian Pengetahuan Lokal dan Keanekaragaman Hayati</span>
               </div>
               <div>
                 <span className="font-bold text-white block">Alamat:</span>
