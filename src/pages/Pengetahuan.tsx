@@ -5,9 +5,10 @@ import { Article, Variety } from '../types';
 
 interface PengetahuanProps {
   setCurrentRoute: (route: string) => void;
+  searchQueryFromNav?: string;
 }
 
-export default function Pengetahuan({ setCurrentRoute }: PengetahuanProps) {
+export default function Pengetahuan({ setCurrentRoute, searchQueryFromNav }: PengetahuanProps) {
   const [articles, setArticles] = useState<Article[]>([]);
   const [varieties, setVarieties] = useState<Variety[]>([]);
   const [loading, setLoading] = useState(true);
@@ -18,6 +19,13 @@ export default function Pengetahuan({ setCurrentRoute }: PengetahuanProps) {
   const [selectedYear, setSelectedYear] = useState('');
   const [selectedVillage, setSelectedVillage] = useState('');
   const [isVerifiedOnly, setIsVerifiedOnly] = useState(false);
+
+  // Sync search query from global navbar search
+  useEffect(() => {
+    if (searchQueryFromNav !== undefined) {
+      setSearchQuery(searchQueryFromNav);
+    }
+  }, [searchQueryFromNav]);
 
   useEffect(() => {
     async function loadData() {

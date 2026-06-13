@@ -21,10 +21,10 @@ export default function Footer({ setCurrentRoute }: FooterProps) {
           {/* Brand Column */}
           <div className="lg:col-span-4 space-y-6">
             <span className="text-2xl font-extrabold tracking-tight cursor-pointer block" onClick={() => setCurrentRoute('home')}>
-              Logo/Nama Website
+              Eco Journey
             </span>
             <p className="text-white/70 text-[14px] leading-relaxed max-w-sm">
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec non libero semper, placerat sem eget, cursus eros. Quisque vulputate mauris nibh, id dignissim felis pellentesque vel. Vivamus non faucibus velit. Cras ac aliquam sem..
+              Eco Journey adalah platform Knowledge Management System (KMS) Sumber Daya Genetik Pertanian Lokal Indonesia. Platform ini bertujuan menghimpun, mendokumentasikan, dan mempromosikan praktik baik serta kearifan lokal konservasi pangan nusantara.
             </p>
             {/* Social Icons */}
             <div className="flex space-x-4">
@@ -118,7 +118,7 @@ export default function Footer({ setCurrentRoute }: FooterProps) {
         </div>
 
         <div className="mt-12 pt-8 border-t border-white/10 text-center text-white/50 text-[12px]">
-          &copy; {new Date().getFullYear()} KMS SDG Pertanian. Seluruh hak cipta dilindungi undang-undang.
+          &copy; {new Date().getFullYear()} Eco Journey. Seluruh hak cipta dilindungi undang-undang.
         </div>
       </div>
     </footer>

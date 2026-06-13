@@ -1,7 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import { SlidersHorizontal, Info, Eye, MapPin as PinIcon } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { SlidersHorizontal, Info, Eye } from 'lucide-react';
 import { getMapPins, getVarieties } from '../services/dataService';
 import { MapPin, Variety } from '../types';
+import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
 
 interface PetaSebaranProps {
   onSelectVariety: (id: string) => void;
@@ -19,6 +21,9 @@ export default function PetaSebaran({ onSelectVariety }: PetaSebaranProps) {
   const [selectedEcosystem, setSelectedEcosystem] = useState('');
   
   const [activePin, setActivePin] = useState<(MapPin & { image?: string; desc?: string }) | null>(null);
+
+  const mapInstanceRef = useRef<L.Map | null>(null);
+  const markersLayerRef = useRef<L.FeatureGroup | null>(null);
 
   useEffect(() => {
     async function loadData() {
@@ -47,15 +52,42 @@ export default function PetaSebaran({ onSelectVariety }: PetaSebaranProps) {
     return matchComm && matchProv && matchStatus && matchEco;
   });
 
-  const getPinColor = (commodity: string) => {
-    switch (commodity) {
-      case 'Padi': return 'fill-emerald-500 stroke-emerald-800';
-      case 'Talas': return 'fill-amber-500 stroke-amber-800';
-      case 'Uwi': return 'fill-indigo-500 stroke-indigo-800';
-      case 'Pala': return 'fill-orange-500 stroke-orange-800';
-      case 'Cengkeh': return 'fill-rose-500 stroke-rose-800';
-      default: return 'fill-neutral-500 stroke-neutral-800';
+  // Helper to get coordinates for mock map pins in Leaflet
+  const getCoordinates = (varietyId: string): [number, number] => {
+    switch (varietyId) {
+      case 'varietas-a': return [-6.8123, 107.6152]; // West Java / SukoJaya
+      case 'varietas-b': return [-6.5971, 106.7986]; // West Java / Cihideung
+      case 'varietas-c': return [-6.9536, 106.4953]; // West Java / Ciptagelar
+      case 'varietas-d': return [-4.5321, 129.8972]; // Banda Island, Maluku / Lonthoir
+      case 'varietas-e': return [0.7911, 127.3619];  // Ternate, Maluku Utara / Marikurubu
+      case 'varietas-f': return [-6.8123, 107.6152]; // West Java / SukoJaya
+      case 'varietas-g': return [-6.5971, 106.7986]; // West Java / Cihideung
+      default: return [-2.5, 118.0];
     }
+  };
+
+  const createCustomIcon = (commodity: string) => {
+    let color = '#10b981'; // Emerald (Padi)
+    if (commodity === 'Talas') color = '#f59e0b'; // Amber
+    if (commodity === 'Uwi') color = '#6366f1'; // Indigo
+    if (commodity === 'Pala') color = '#f97316'; // Orange
+    if (commodity === 'Cengkeh') color = '#f43f5e'; // Rose
+
+    const svgHtml = `
+      <div class="relative flex items-center justify-center">
+        <span class="absolute inline-flex h-6 w-6 rounded-full bg-white opacity-45 animate-ping"></span>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="${color}" width="32" height="32" class="drop-shadow-lg relative z-10">
+          <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+        </svg>
+      </div>
+    `;
+    return L.divIcon({
+      html: svgHtml,
+      className: 'custom-leaflet-icon-container',
+      iconSize: [32, 32],
+      iconAnchor: [16, 32],
+      popupAnchor: [0, -32]
+    });
   };
 
   const handlePinClick = (pin: MapPin) => {
@@ -67,27 +99,79 @@ export default function PetaSebaran({ onSelectVariety }: PetaSebaranProps) {
     });
   };
 
-  // Extract filter lists
+  // Initialize Leaflet Map
+  useEffect(() => {
+    if (!loading && !mapInstanceRef.current) {
+      // Create map container centred on Indonesia
+      const map = L.map('map-leaflet', {
+        center: [-2.5, 118.0],
+        zoom: 5,
+        minZoom: 4,
+        maxZoom: 12,
+        scrollWheelZoom: true
+      });
+
+      // Add high quality tile layer
+      L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+        subdomains: 'abcd',
+        maxZoom: 20
+      }).addTo(map);
+
+      mapInstanceRef.current = map;
+      markersLayerRef.current = L.featureGroup().addTo(map);
+    }
+
+    return () => {
+      if (mapInstanceRef.current) {
+        mapInstanceRef.current.remove();
+        mapInstanceRef.current = null;
+        markersLayerRef.current = null;
+      }
+    };
+  }, [loading]);
+
+  // Update Markers when Filtered Pins change
+  useEffect(() => {
+    if (markersLayerRef.current && mapInstanceRef.current && !loading) {
+      markersLayerRef.current.clearLayers();
+
+      filteredPins.forEach(pin => {
+        const coords = getCoordinates(pin.varietyId);
+        const marker = L.marker(coords, {
+          icon: createCustomIcon(pin.commodity)
+        });
+
+        marker.on('click', () => {
+          handlePinClick(pin);
+        });
+
+        markersLayerRef.current?.addLayer(marker);
+      });
+
+      // Fit bounds if markers exist
+      if (filteredPins.length > 0) {
+        const bounds = markersLayerRef.current.getBounds();
+        mapInstanceRef.current.fitBounds(bounds, { padding: [50, 50], maxZoom: 8 });
+      } else {
+        mapInstanceRef.current.setView([-2.5, 118.0], 5);
+      }
+    }
+  }, [filteredPins, varieties, loading]);
+
+  // Extract filter list values
   const commoditiesList = [...new Set(pins.map(p => p.commodity))];
   const provincesList = [...new Set(pins.map(p => p.province).filter(Boolean))];
   const statusesList = [...new Set(pins.map(p => p.status))];
   const ecosystemsList = [...new Set(pins.map(p => p.ecosystem).filter(Boolean))];
 
-  if (loading) {
-    return (
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center animate-pulse">
-        <div className="h-96 bg-neutral-200 rounded-xl"></div>
-      </div>
-    );
-  }
-
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
       
-      {/* Page Title */}
+      {/* Title */}
       <div>
         <h1 className="text-3xl font-extrabold text-primary">Peta Sebaran Varietas</h1>
-        <p className="text-sm text-neutral-500">Pemetaan partisipatif (citizen science) oleh petani dan penyuluh untuk sebaran varietas di lahan.</p>
+        <p className="text-sm text-neutral-500">Pemetaan partisipatif (citizen science) sebaran varietas lokal berbasis Leaflet Map.</p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
@@ -188,67 +272,18 @@ export default function PetaSebaran({ onSelectVariety }: PetaSebaranProps) {
 
         {/* Map View Area */}
         <div className="lg:col-span-3 bg-white border border-neutral-200 rounded-xl p-6 shadow-sm relative overflow-hidden flex flex-col justify-between">
-          <div className="bg-neutralBg/30 border border-neutral-100 rounded-lg p-4 flex items-center justify-center min-h-[450px]">
-            
-            <svg 
-              viewBox="0 0 1000 400" 
-              className="w-full h-auto text-primary/10 fill-current opacity-90 transition-all select-none"
-              aria-label="Peta Interaktif Indonesia"
-            >
-              {/* Indonesia Map Path representation */}
-              <path d="M50 150 Q100 130 150 140 T250 160 T350 130 T450 170 T550 150 T650 140 T750 130 T850 160 T950 140" stroke="#ccc" strokeWidth="6" fill="none"/>
-              <path d="M120 180 Q160 190 200 180 T300 200 T400 190 T500 210 T600 200 T700 190 T800 220" stroke="#ccc" strokeWidth="4" fill="none"/>
-              
-              {/* Sumatra */}
-              <path d="M100 100 L200 200 L180 220 L80 120 Z" fill="#D5E2C4" stroke="#284027" strokeWidth="2"/>
-              {/* Java */}
-              <path d="M220 250 L400 250 L380 270 L200 270 Z" fill="#D5E2C4" stroke="#284027" strokeWidth="2"/>
-              {/* Kalimantan */}
-              <path d="M300 100 L420 80 L440 180 L320 190 Z" fill="#D5E2C4" stroke="#284027" strokeWidth="2"/>
-              {/* Sulawesi */}
-              <path d="M500 120 L580 100 L560 200 L480 180 Z" fill="#D5E2C4" stroke="#284027" strokeWidth="2"/>
-              {/* Maluku */}
-              <circle cx="610" cy="210" r="10" fill="#D5E2C4" stroke="#284027" strokeWidth="2" />
-              <circle cx="640" cy="180" r="8" fill="#D5E2C4" stroke="#284027" strokeWidth="2" />
-              {/* Papua */}
-              <path d="M750 130 L900 150 L880 240 L730 220 Z" fill="#D5E2C4" stroke="#284027" strokeWidth="2"/>
-              
-              <text x="600" y="320" className="text-[28px] font-bold fill-primary/30 tracking-widest select-none">
-                Indonesia
-              </text>
-
-              {/* Render filtered markers */}
-              {filteredPins.map((pin, index) => (
-                <g 
-                  key={index} 
-                  className="cursor-pointer group"
-                  onClick={() => handlePinClick(pin)}
-                >
-                  <circle 
-                    cx={pin.cx} 
-                    cy={pin.cy} 
-                    r="16" 
-                    className="fill-white/80 opacity-0 group-hover:opacity-100 transition-all duration-300" 
-                  />
-                  <circle 
-                    cx={pin.cx} 
-                    cy={pin.cy} 
-                    r="9" 
-                    className={`${getPinColor(pin.commodity)} stroke-2 transition-all group-hover:scale-125 transform origin-center`} 
-                  />
-                  <circle 
-                    cx={pin.cx} 
-                    cy={pin.cy} 
-                    r="3" 
-                    fill="white" 
-                  />
-                </g>
-              ))}
-            </svg>
+          <div className="relative border border-neutral-100 rounded-lg overflow-hidden min-h-[450px]">
+            {loading ? (
+              <div className="absolute inset-0 flex items-center justify-center bg-neutral-50 text-neutral-500 animate-pulse">
+                Memuat peta sebaran...
+              </div>
+            ) : (
+              <div id="map-leaflet" className="absolute inset-0 z-0" style={{ height: '450px', width: '100%' }}></div>
+            )}
 
             {/* Popup details card */}
             {activePin && (
-              <div className="absolute bottom-6 right-6 w-80 bg-white border border-neutral-200 rounded-xl p-4 shadow-xl flex gap-4 animate-slideUp z-10">
+              <div className="absolute bottom-6 right-6 w-80 bg-white border border-neutral-200 rounded-xl p-4 shadow-xl flex gap-4 animate-slideUp z-[1000]">
                 <img 
                   src={activePin.image} 
                   alt={activePin.label}
@@ -264,7 +299,6 @@ export default function PetaSebaran({ onSelectVariety }: PetaSebaranProps) {
                     onClick={() => onSelectVariety(activePin.varietyId)}
                     className="mt-2 text-xs bg-primary hover:bg-primary-light text-white font-bold py-1 px-3 rounded flex items-center justify-center gap-1 transition-all"
                   >
-                    <Eye size={12} />
                     <span>Lihat Detail</span>
                   </button>
                 </div>

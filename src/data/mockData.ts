@@ -6,7 +6,7 @@ export const VARITIES_DATA: Variety[] = [
     name: "Varietas A (Padi Genjah)",
     village: "SukoJaya",
     commodity: "Padi",
-    physicalDescription: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras vel ipsum id magna pulvinar tempor. Pellentesque sit amet turpis finibus, placerat sem eget, cursus eros. Quisque vulputate mauris nibh, id dignissim felis pellentesque vel. Vivamus non faucibus velit. Cras ac aliquam sem.",
+    physicalDescription: "Varietas padi lokal berumur genjah dengan daya adaptasi tinggi terhadap kondisi curah hujan ekstrem. Memiliki bulir padi lonjong berwarna kuning keemasan, batang kokoh yang tahan rebah, serta rasa nasi yang pulen wangi setelah dimasak.",
     conservationStatus: "Aman",
     altitude: "500 Mdpl",
     landType: "Tanah",
@@ -21,19 +21,19 @@ export const VARITIES_DATA: Variety[] = [
         id: "practice-1",
         title: "Praktik Lokal 1",
         image: "https://images.unsplash.com/photo-1500937386664-56d1dfef3854?auto=format&fit=crop&q=80&w=600",
-        description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras vel ipsum id magna pulvinar tempor. Pellentesque sit amet turpis finibus, aliquet lacus vitae, tristique lectus. Nullam finibus nulla vestibulum ornare lobortis. Aenean bibendum velit quam, in fringilla"
+        description: "Metode pemupukan kompos jerami organik untuk menjaga unsur hara tanah sawah tetap gembur secara alami."
       },
       {
         id: "practice-2",
         title: "Praktik Lokal 2",
         image: "https://images.unsplash.com/photo-1500937386664-56d1dfef3854?auto=format&fit=crop&q=80&w=600",
-        description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras vel ipsum id magna pulvinar tempor. Pellentesque sit amet turpis finibus, aliquet lacus vitae, tristique lectus. Nullam finibus nulla vestibulum ornare lobortis. Aenean bibendum velit quam, in fringilla"
+        description: "Sistem rotasi tanaman sela kacang-kacangan setelah panen raya untuk mengembalikan kandungan nitrogen tanah."
       },
       {
         id: "practice-3",
         title: "Praktik Lokal 3",
         image: "https://images.unsplash.com/photo-1500937386664-56d1dfef3854?auto=format&fit=crop&q=80&w=600",
-        description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras vel ipsum id magna pulvinar tempor. Pellentesque sit amet turpis finibus, aliquet lacus vitae, tristique lectus. Nullam finibus nulla vestibulum ornare lobortis. Aenean bibendum velit quam, in fringilla"
+        description: "Teknik penyimpanan benih padi di lumbung tradisional (leuit) menggunakan daun sereh wangi sebagai pengusir hama bubuk alami."
       }
     ],
     calendarEvents: {
@@ -235,8 +235,8 @@ export const ARTICLES_DATA: Article[] = [
     title: "Pengetahuan 1 (Konservasi Padi Ladang Kuno)",
     subtitle: "Konservasi Varietas Padi Endemik Kasepuhan",
     image: "https://images.unsplash.com/photo-1500937386664-56d1dfef3854?auto=format&fit=crop&q=80&w=600",
-    description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras vel ipsum id magna pulvinar tempor. Pellentesque sit amet turpis finibus, aliquet lacus vitae, tristique lectus. Nullam finibus nulla vestibulum ornare lobortis. Aenean bibendum velit quam, in fringilla",
-    content: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras volutpat, lorem non libero semper, placerat sem eget, cursus eros. Quisque vulputate mauris nibh, id dignissim felis pellentesque vel. Curabitur quis volutpat lectus, hendrerit eleifend risus. Maecenas ultrices ante ac tellus elementum dignissim. Cras finibus sapien nec maximus feugiat. Etiam dignissim tellus in efficitur porta. Duis hendrerit ullamcorper pharetra. Aliquam sit amet ipsum nulla.\n\nNullam posuere, nisi quis finibus ultrices, ligula metus tristique enim, sed molestie ante est nec elit. Donec efficitur tincidunt quam vel mollis. Donec euismod nunc egestas urna hendrerit, eu pharetra lorem viverra. Mauris sed aliquet quam, mollis tincidunt tortor. Quisque eget faucibus sapien, et auctor nibh. Nullam quis dolor ut dolor egestas ultricies. Curabitur facilisis est at lectus hendrerit vulputate eu vitae ante. Nullam quis volutpat elit. Praesent a diam vitae mi ultricies euismod.\n\nInterdum et malesuada fames ac ante ipsum primis in faucibus. Duis mattis lorem magna, non tincidunt lacus lacinia eu. Curabitur quam libero, sollicitudin in nisl a, ultricies posuere turpis. Nulla volutpat blandit felis, non elementum urna iaculis id. In nec nulla metus. Aenean porta dui mattis, dapibus nibh at, viverra ex. Cras accumsan nunc vitae orci vehicula, sodales blandit lacus elementum. Maecenas hendrerit ullamcorper condimentum. Vestibulum et.",
+    description: "Artikel ini membahas pentingnya melestarikan padi ladang kuno di Kasepuhan Banten Kidul sebagai pilar kedaulatan pangan tangguh.",
+    content: "Kasepuhan Banten Kidul memiliki tradisi pertanian padi ladang kuno yang diwariskan dari generasi ke generasi. Padi ladang ini ditanam di lahan kering (huma) tanpa menggunakan pupuk kimia atau pestisida sintetis.\n\nMasyarakat adat menerapkan kearifan lokal seperti 'leuit' (lumbung padi) untuk menyimpan cadangan pangan keluarga yang dapat bertahan hingga puluhan tahun. Tradisi penanaman diawali dengan pembacaan tanda bintang bintang Orion dan ritual seren taun sebagai wujud syukur atas hasil bumi.\n\nMelalui pendekatan terpadu proyek CDC UI, kearifan lokal ini kini didokumentasikan untuk menjamin kedaulatan data adat (data sovereignty) serta mempermudah pertukaran pengetahuan antar petani.",
     category: "Konservasi",
     date: "12 Mei 2026",
     author_name: "Ria Sasmita",
@@ -251,7 +251,7 @@ export const ARTICLES_DATA: Article[] = [
     title: "Pengetahuan 2 (Ritual Tanam Adat Talas)",
     subtitle: "Kearifan Lokal Penanaman Talas Bogor",
     image: "https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?auto=format&fit=crop&q=80&w=600",
-    description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras vel ipsum id magna pulvinar tempor. Pellentesque sit amet turpis finibus, aliquet lacus vitae, tristique lectus. Nullam finibus nulla vestibulum ornare lobortis. Aenean bibendum velit quam, in fringilla",
+    description: "Panduan lengkap ritual adat Sunda Wiwitan dan Kasepuhan dalam pembacaan rasi bintang Kidang untuk penentuan musim tanam talas.",
     content: "Upacara adat Sunda Wiwitan dalam menanam talas bogor. Pengetahuan adat mengajarkan sinkronisasi penanaman talas dengan rasi bintang Orion (Kidang). Budidaya partisipatif ini sangat menjaga keselarasan tanah dengan alam.\n\nPetani tidak diperkenankan menggunakan zat kimia buatan. Sebagai gantinya, pupuk kompos alami dari daun bambu kering yang melapuk di sekitar bedengan diletakkan di pangkal batang talas.\n\nMelalui praktik lisan tradisional ini, ketahanan pangan adat dapat terjaga lintas generasi secara mandiri dan berdaulat sesuai dengan kedaulatan pangan wilayah setempat.",
     category: "Ritual Adat",
     date: "24 April 2026",
@@ -267,7 +267,7 @@ export const ARTICLES_DATA: Article[] = [
     title: "Pengetahuan 3 (Teknik Pengasapan Pala Tradisional)",
     subtitle: "Teknik Pasca Panen Pala Banda",
     image: "https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&q=80&w=600",
-    description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras vel ipsum id magna pulvinar tempor. Pellentesque sit amet turpis finibus, aliquet lacus vitae, tristique lectus. Nullam finibus nulla vestibulum ornare lobortis. Aenean bibendum velit quam, in fringilla",
+    description: "Studi kasus teknik pengasapan biji pala secara tradisional oleh petani pulau Banda untuk mencegah serangan jamur pasca panen.",
     content: "Proses pengeringan buah pala menggunakan asap kayu kenari secara tidak langsung. Teknik ini menjaga agar minyak atsiri pala tidak rusak dan jamur aflatoksin tidak berkembang.\n\nSuhu ruangan pengasapan dijaga konstan antara 40-50 derajat Celcius selama 7 hari berturut-turut sampai biji pala berbunyi nyaring saat dikocok.\n\nPraktik ini diwariskan secara turun-temurun oleh masyarakat pulau Banda untuk menjaga kualitas ekspor pala tingkat dunia.",
     category: "Pasca Panen",
     date: "08 Maret 2026",
@@ -285,28 +285,28 @@ export const STATS_DATA: Stat[] = [
     id: "stat-1",
     label: "Jumlah varietas terdokumentasi",
     value: "148 Varietas",
-    description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+    description: "Meliputi komoditas utama padi, talas, uwi, cengkeh, dan pala.",
     iconName: "Wheat"
   },
   {
     id: "stat-2",
     label: "Jumlah Desa",
     value: "32 Desa Adat",
-    description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+    description: "Tersebar di wilayah administratif Jawa Barat, Maluku, dan Maluku Utara.",
     iconName: "Home"
   },
   {
     id: "stat-3",
     label: "Praktik tervalidasi",
     value: "54 Praktik",
-    description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+    description: "Tervalidasi oleh pakar etnobotani dan ketua adat kasepuhan.",
     iconName: "UserCheck"
   },
   {
     id: "stat-4",
     label: "Komunitas berkontribusi",
     value: "19 Komunitas",
-    description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+    description: "Kolaborasi antara kelompok tani, penyuluh lapangan, dan lembaga riset.",
     iconName: "Users"
   }
 ];

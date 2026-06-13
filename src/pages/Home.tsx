@@ -1,7 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import * as Icons from 'lucide-react';
 import { getStats, getVillages, getArticles, getVarieties } from '../services/dataService';
 import { Stat, Village, Article, Variety } from '../types';
+import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
 
 interface HomeProps {
   setCurrentRoute: (route: string) => void;
@@ -14,6 +16,9 @@ export default function Home({ setCurrentRoute, setSelectedVarietyId }: HomeProp
   const [articles, setArticles] = useState<Article[]>([]);
   const [varieties, setVarieties] = useState<Variety[]>([]);
   const [loading, setLoading] = useState(true);
+
+  const homeMapRef = useRef<L.Map | null>(null);
+  const homeMarkersRef = useRef<L.FeatureGroup | null>(null);
 
   useEffect(() => {
     async function loadData() {
@@ -36,6 +41,101 @@ export default function Home({ setCurrentRoute, setSelectedVarietyId }: HomeProp
     }
     loadData();
   }, []);
+
+  // Initialize Leaflet Map on Homepage
+  useEffect(() => {
+    if (!loading && !homeMapRef.current) {
+      const map = L.map('home-map-leaflet', {
+        center: [-2.5, 118.0],
+        zoom: 5,
+        minZoom: 4,
+        maxZoom: 10,
+        zoomControl: false,
+        scrollWheelZoom: false,
+        doubleClickZoom: false,
+        dragging: true
+      });
+
+      L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+        attribution: '&copy; CARTO',
+        subdomains: 'abcd',
+        maxZoom: 20
+      }).addTo(map);
+
+      homeMapRef.current = map;
+      homeMarkersRef.current = L.featureGroup().addTo(map);
+    }
+
+    return () => {
+      if (homeMapRef.current) {
+        homeMapRef.current.remove();
+        homeMapRef.current = null;
+        homeMarkersRef.current = null;
+      }
+    };
+  }, [loading]);
+
+  // Update Map Markers on Homepage
+  useEffect(() => {
+    if (homeMarkersRef.current && homeMapRef.current && !loading) {
+      homeMarkersRef.current.clearLayers();
+
+      const getCoords = (vId: string): [number, number] => {
+        switch (vId) {
+          case 'varietas-a': return [-6.8123, 107.6152]; // West Java / SukoJaya
+          case 'varietas-b': return [-6.5971, 106.7986]; // West Java / Cihideung
+          case 'varietas-c': return [-6.9536, 106.4953]; // West Java / Ciptagelar
+          case 'varietas-d': return [-4.5321, 129.8972]; // Banda Island, Maluku / Lonthoir
+          case 'varietas-e': return [0.7911, 127.3619];  // Ternate, Maluku Utara / Marikurubu
+          case 'varietas-f': return [-6.8123, 107.6152]; // West Java / SukoJaya
+          case 'varietas-g': return [-6.5971, 106.7986]; // West Java / Cihideung
+          default: return [-2.5, 118.0];
+        }
+      };
+
+      const createIcon = (commodity: string) => {
+        let color = '#10b981'; // Padi
+        if (commodity === 'Talas') color = '#f59e0b';
+        if (commodity === 'Uwi') color = '#6366f1';
+        if (commodity === 'Pala') color = '#f97316';
+        if (commodity === 'Cengkeh') color = '#f43f5e';
+
+        return L.divIcon({
+          html: `
+            <div class="relative flex items-center justify-center">
+              <span class="absolute inline-flex h-4 w-4 rounded-full bg-white opacity-40 animate-ping"></span>
+              <svg viewBox="0 0 24 24" fill="${color}" width="22" height="22" class="drop-shadow-sm">
+                <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/>
+              </svg>
+            </div>
+          `,
+          className: 'home-leaflet-icon',
+          iconSize: [22, 22],
+          iconAnchor: [11, 22]
+        });
+      };
+
+      // Plot all map markers
+      const pinsData = [
+        { id: 'varietas-a', comm: 'Padi' },
+        { id: 'varietas-b', comm: 'Talas' }, // Cihideung
+        { id: 'varietas-c', comm: 'Uwi' },
+        { id: 'varietas-d', comm: 'Pala' },
+        { id: 'varietas-e', comm: 'Cengkeh' },
+        { id: 'varietas-f', comm: 'Talas' },
+        { id: 'varietas-g', comm: 'Uwi' }  // Cihideung
+      ];
+
+      pinsData.forEach(p => {
+        const coords = getCoords(p.id);
+        const marker = L.marker(coords, { icon: createIcon(p.comm) });
+        marker.on('click', () => {
+          setCurrentRoute('peta');
+        });
+        homeMarkersRef.current?.addLayer(marker);
+      });
+    }
+  }, [loading]);
 
   // Dynamically resolve icons for the stats cards
   const renderIcon = (iconName: string, colorClass = "text-primary") => {
@@ -74,9 +174,9 @@ export default function Home({ setCurrentRoute, setSelectedVarietyId }: HomeProp
       <section className="relative bg-primary h-[500px] flex items-center overflow-hidden">
         {/* Background Image with Dark Green Overlay */}
         <div 
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-30 mix-blend-overlay"
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-40 mix-blend-overlay"
           style={{ 
-            backgroundImage: "url('https://images.unsplash.com/photo-1599599810769-bcde5a160d32?auto=format&fit=crop&q=80&w=1600')" 
+            backgroundImage: "url('https://images.unsplash.com/photo-1500937386664-56d1dfef3854?auto=format&fit=crop&q=80&w=1600')" 
           }}
         />
         
@@ -140,39 +240,12 @@ export default function Home({ setCurrentRoute, setSelectedVarietyId }: HomeProp
               <p className="text-sm text-neutral-500">Visualisasi sebaran varietas tanaman adat di Indonesia.</p>
             </div>
             
-            {/* Interactive/Beautiful SVG Map Representation */}
-            <div className="bg-neutralBg/50 border border-neutral-100 rounded-lg p-4 flex items-center justify-center min-h-[300px] relative overflow-hidden">
-              <svg 
-                viewBox="0 0 1000 400" 
-                className="w-full h-auto text-primary/10 fill-current opacity-70 transition-all"
-                aria-label="Peta Indonesia"
-              >
-                {/* Indonesia Simplified Shape Path */}
-                <path d="M50 150 Q100 130 150 140 T250 160 T350 130 T450 170 T550 150 T650 140 T750 130 T850 160 T950 140" stroke="#ccc" strokeWidth="6" fill="none"/>
-                <path d="M120 180 Q160 190 200 180 T300 200 T400 190 T500 210 T600 200 T700 190 T800 220" stroke="#ccc" strokeWidth="4" fill="none"/>
-                
-                {/* Sumatra */}
-                <path d="M100 100 L200 200 L180 220 L80 120 Z" fill="#D5E2C4" stroke="#284027" strokeWidth="2"/>
-                {/* Java */}
-                <path d="M220 250 L400 250 L380 270 L200 270 Z" fill="#D5E2C4" stroke="#284027" strokeWidth="2"/>
-                {/* Kalimantan */}
-                <path d="M300 100 L420 80 L440 180 L320 190 Z" fill="#D5E2C4" stroke="#284027" strokeWidth="2"/>
-                {/* Sulawesi */}
-                <path d="M500 120 L580 100 L560 200 L480 180 Z" fill="#D5E2C4" stroke="#284027" strokeWidth="2"/>
-                {/* Papua */}
-                <path d="M750 130 L900 150 L880 240 L730 220 Z" fill="#D5E2C4" stroke="#284027" strokeWidth="2"/>
-                
-                {/* Dots representing villages */}
-                <circle cx="150" cy="150" r="10" fill="#7A5535" className="animate-ping" />
-                <circle cx="150" cy="150" r="8" fill="#7A5535" />
-                <circle cx="320" cy="255" r="8" fill="#284027" />
-                <circle cx="360" cy="120" r="8" fill="#EB3131" />
-                <circle cx="530" cy="140" r="8" fill="#384166" />
-                <circle cx="810" cy="180" r="8" fill="#7A5535" />
-              </svg>
+            {/* Interactive/Beautiful Leaflet Map Representation */}
+            <div className="bg-neutralBg/50 border border-neutral-100 rounded-lg min-h-[300px] relative overflow-hidden">
+              <div id="home-map-leaflet" className="absolute inset-0 z-0" style={{ height: '300px', width: '100%' }}></div>
               
               {/* Overlay labels */}
-              <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-sm text-[10px] sm:text-xs font-semibold px-3 py-1.5 rounded border border-neutral-200 space-y-1">
+              <div className="absolute top-4 left-4 bg-white/95 backdrop-blur-sm text-[10px] sm:text-xs font-semibold px-3 py-1.5 rounded border border-neutral-200 space-y-1 z-[1000] shadow-sm">
                 <div className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block"></span> Padi</div>
                 <div className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-amber-500 inline-block"></span> Talas & Uwi</div>
                 <div className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-rose-500 inline-block"></span> Pala & Cengkeh</div>
@@ -205,7 +278,7 @@ export default function Home({ setCurrentRoute, setSelectedVarietyId }: HomeProp
                     {village.name}
                   </h3>
                   <p className="text-xs text-secondary font-medium">
-                    Varietas Unggulan:
+                    Varietas:
                   </p>
                   <p className="text-xs text-neutral-700 font-bold line-clamp-1">
                     {village.varieties}

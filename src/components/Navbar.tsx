@@ -34,10 +34,11 @@ export default function Navbar({ currentRoute, setCurrentRoute, onSearch }: Navb
     <nav className="bg-primary text-white sticky top-0 z-50 shadow-md">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-20">
+          
           {/* Logo */}
-          <div className="flex-shrink-0 cursor-pointer" onClick={() => handleNavClick('home')}>
+          <div className="flex-shrink-0 cursor-pointer flex items-center" onClick={() => handleNavClick('home')}>
             <span className="text-xl sm:text-2xl font-extrabold tracking-tight">
-              Logo/Nama Website
+              Eco Journey
             </span>
           </div>
 
@@ -61,12 +62,16 @@ export default function Navbar({ currentRoute, setCurrentRoute, onSearch }: Navb
             ))}
           </div>
 
-          {/* Search, Signin, Register */}
-          <div className="hidden md:flex items-center space-x-4">
+          {/* Search form only (Buttons removed) */}
+          <div className="hidden md:flex items-center">
             <form onSubmit={handleSearchSubmit} className="relative">
               <input
                 type="text"
-                placeholder="Hinted search text"
+                placeholder={
+                  currentRoute.startsWith('pengetahuan') || currentRoute.startsWith('detail-pengetahuan-')
+                    ? "Cari pengetahuan..."
+                    : "Cari varietas..."
+                }
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="bg-[#1f301e] text-white placeholder-white/40 text-[14px] rounded-md pl-4 pr-10 py-2 w-48 lg:w-64 focus:outline-none focus:ring-2 focus:ring-accent-light/50 transition-all border border-transparent"
@@ -75,20 +80,13 @@ export default function Navbar({ currentRoute, setCurrentRoute, onSearch }: Navb
                 <Search size={18} />
               </button>
             </form>
-
-            <button className="bg-white text-primary hover:bg-neutralBg font-bold text-[14px] px-5 py-2 rounded-md transition-all active:scale-95">
-              Sign in
-            </button>
-            <button className="bg-[#1e2d42] hover:bg-[#2b3f5c] text-white font-bold text-[14px] px-5 py-2 rounded-md transition-all active:scale-95 border border-[#2b3f5c]">
-              Register
-            </button>
           </div>
 
           {/* Mobile Menu Button */}
-          <div className="md:hidden flex items-center space-x-3">
+          <div className="md:hidden flex items-center">
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="inline-flex items-center justify-center p-2 rounded-md text-white/80 hover:text-white hover:bg-primary-light focus:outline-none focus:ring-2 focus:ring-white"
+              className="inline-flex items-center justify-center p-2 rounded-md text-white/80 hover:text-white hover:bg-primary-light focus:outline-none"
             >
               {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
             </button>
@@ -115,11 +113,15 @@ export default function Navbar({ currentRoute, setCurrentRoute, onSearch }: Navb
             ))}
           </div>
 
-          <div className="pt-4 border-t border-white/10 space-y-3">
+          <div className="pt-4 border-t border-white/10">
             <form onSubmit={handleSearchSubmit} className="relative">
               <input
                 type="text"
-                placeholder="Hinted search text"
+                placeholder={
+                  currentRoute.startsWith('pengetahuan') || currentRoute.startsWith('detail-pengetahuan-')
+                    ? "Cari pengetahuan..."
+                    : "Cari varietas..."
+                }
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="bg-[#1f301e] text-white placeholder-white/40 text-sm rounded-md pl-4 pr-10 py-2.5 w-full focus:outline-none"
@@ -128,15 +130,6 @@ export default function Navbar({ currentRoute, setCurrentRoute, onSearch }: Navb
                 <Search size={18} />
               </button>
             </form>
-
-            <div className="grid grid-cols-2 gap-3">
-              <button className="bg-white text-primary hover:bg-neutralBg font-bold text-sm py-2.5 rounded-md transition-all text-center">
-                Sign in
-              </button>
-              <button className="bg-[#1e2d42] hover:bg-[#2b3f5c] text-white font-bold text-sm py-2.5 rounded-md transition-all text-center">
-                Register
-              </button>
-            </div>
           </div>
         </div>
       )}

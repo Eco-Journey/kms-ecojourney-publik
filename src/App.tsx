@@ -14,10 +14,14 @@ function App() {
   const [selectedVarietyId, setSelectedVarietyId] = useState<string | null>(null);
   const [searchQueryFromNav, setSearchQueryFromNav] = useState<string>('');
 
-  // Handle global search from Navbar
+  // Handle global search from Navbar contextually
   const handleSearch = (query: string) => {
     setSearchQueryFromNav(query);
-    setCurrentRoute('varietas');
+    if (currentRoute.startsWith('pengetahuan') || currentRoute.startsWith('detail-pengetahuan-')) {
+      setCurrentRoute('pengetahuan');
+    } else {
+      setCurrentRoute('varietas');
+    }
   };
 
   // Handle variety select and route redirect
@@ -58,6 +62,7 @@ function App() {
       return (
         <Pengetahuan 
           setCurrentRoute={setCurrentRoute} 
+          searchQueryFromNav={searchQueryFromNav} // Synchronized query
         />
       );
     }
